@@ -100,14 +100,21 @@ The following list are the currently defined build flags (if any) that may be pa
 ### PRM Platform GUID
 **IMPORTANT**
 
-A configuration item that requires user attention is the PRM platform GUID. Each platform that uses PRM must be
-uniquely identifiable so that various instances of a PRM module can target the correct platform in PRM module updates.
+PRM has a concept of a "Platform GUID" which associates a specific platform with a set of PRM modules built for
+that platform. This GUID is used to ensure system compatibility for a given collection of PRM modules.
 
-To apply a unique platform GUID set the following PCD to a unique value in your platform DSC file.
-  ``gPrmPkgTokenSpaceGuid.PcdPrmPlatformGuid``
+Therefore, each PRM module must only target a single platform and each platform must have a unique GUID. Even if a
+PRM module is unchanged between two different platforms now, there is no guarantee that will remain the case so always
+assign a unique Platform GUID for each platform.
 
-The default value assigned in [PrmPkg.dec](PrmPkg/PrmPkg.dec) is zero. By design, this is an invalid value that will
-cause an ASSERT if it is not updated.
+The PRM Platform GUID is primarily used during PRM module runtime updates in the OS to ensure that the Platform GUID
+in the system's ACPI table (PRMT) matches the Platform GUID of the module requested for update. Even if runtime
+updates are not a planned feature for a given platform, still assign a unique Platform GUID for binary module
+identification (the Platform GUID is in the module's export descriptor) and to ensure such updates can be seamlessly
+supported in the future if needed.
+
+In the `PrmPkg` implementation, the Platform GUID is automatically derived from the PLATFORM_GUID in the DSC file of
+the package being built.
 
 ### Build Output
 Like a typical EDK II package, the PrmPkg binary build output can be found in the Build directory in the edk2
